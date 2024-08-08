@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Self-Expanding Low-Rank Adaptation of Latent Diffusion Model for Medical Image Synthesis.">
+  <meta name="keywords" content="Text-to-Image Synthesis, Low-Rank Adaptation, LoRA, Parameter-efficient, Medical Imaging.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SeLoRA: Self-Expanding Low-Rank Adaptation of Latent Diffusion Model for Medical Image Synthesis</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script> -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://yuchen20.github.io/">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <!-- <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://hypernerf.github.io">
+            HyperNeRF
+          </a>
+          <a class="navbar-item" href="https://nerfies.github.io">
+            Nerfies
+          </a>
+          <a class="navbar-item" href="https://latentfusion.github.io">
+            LatentFusion
+          </a>
+          <a class="navbar-item" href="https://photoshape.github.io">
+            PhotoShape
+          </a>
+        </div>
+      </div> -->
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title"><span class="dnerf">SeLoRA</span>: Self-Expanding Low-Rank Adaptation of Latent Diffusion Model for Medical Image Synthesis</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://yuchen20.github.io/">Yuchen Mao</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://hongweilibran.github.io/">Hongwei Li</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://pangwei.eu.org/">Wei Pang</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=VPsjPNUAAAAJ&hl=en">Giorgos Papanastasiou</a><sup>4</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.yanglab.fyi/">Guang Yang</a><sup>5</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://chengjiawang.github.io/">Chengjia Wang</a><sup>3</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Edinburgh,</span>
+            <span class="author-block"><sup>2</sup>Harvard Medical School</span>
+            <span class="author-block"><sup>3</sup>Heriot-Watt University</span>
+            <span class="author-block"><sup>4</sup>Heriot-Watt University</span>
+            <span class="author-block"><sup>5</sup>Imperial College London</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- <span class="link-block">
+                <a href="https://arxiv.org/pdf/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span> -->
+              <span class="link-block">
+                <a href="https://www.google.co.uk/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span> -->
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static\images\SeLoRA.png"
+                 alt="Interpolate start reference image."/>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">SeLoRA</span> Self-Expanding Low-Rank Adaptation of Latent Diffusion Model for Medical Image Synthesis
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            The persistent challenge of medical image synthesis posed by the scarcity of annotated data and the need to synthesize `missing modalities' for multi-modal analysis, underscored the imperative development of effective synthesis methods. 
+          </p>
+          <p>
+              Recently, the combination of Low-Rank Adaptation (LoRA) with latent diffusion models (LDMs) has emerged as a viable approach for efficiently adapting pre-trained large language models, in the medical field. However, the direct application of LoRA assumes uniform ranking across all linear layers, overlooking the significance of different weight matrices, and leading to sub-optimal outcomes. Prior works on <i>LoRA</i> prioritize the reduction of trainable parameters, and there exists an opportunity to further tailor this adaptation process to the intricate demands of medical image synthesis. 
+          </p>
+            </p>
+            In response, we present <i>SeLoRA</i>, a Self-Expanding Low-Rank Adaptation Module, that dynamically expands its ranking across layers during training, strategically placing additional ranks on crucial layers, to allow the model to elevate synthesis quality where it matters most. The proposed method not only enables LDMs to fine-tune on medical data efficiently but also empowers the model to achieve improved image quality with minimal ranking. The code of our <i>SeLoRA</i> method is publicly available at 
+            <a href = "https://anonymous.4open.science/r/SeLoRA-980D">Here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+
+  </div>
+</section>
+
+
+<section class="section hero is-light">
+  <!-- <div class="container is-max-desktop"> -->
+<div class="container is-max-desktop">
+  <h2 class="title is-3">Synthesized Images</h2>
+  <p>
+    Below are some examples of images synthesized by fine-tuning a Stable Diffusion model with SeLoRA on the IU X-Ray dataset. The synthesized images are from the test set of the dataset, so patients' privacy is protected. Please hover over the images to see the synthesized image.
+  </p>
+
+</div>
+</section>
+
+<section class="hero is-light is-small">
+
+
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        
+        <div class="item">
+          <div style="text-align: center">
+            <div class="image-container">
+              <img src="./static\images\Picture1.png" alt="sample image." class="censored">
+              <div class="overlay-text">Hover to Reveal Synthesized Image from Fine-Tunined Stable Diffusion with SeLORA on IU X-Ray Dataset</div>
+              <div class="image-description">
+                  <div class="image-details">
+                      <span>Cardiac and mediastinal contours are within normal limits. The lungs are clear. Bony structures are intact.</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div style="text-align: center">
+            <div class="image-container">
+              <img src="./static\images\Picture2.png" alt="sample image." class="censored">
+              <div class="overlay-text">Hover to Reveal Synthesized Image from Fine-Tunined Stable Diffusion with SeLORA on IU X-Ray Dataset</div>
+              <div class="image-description">
+                  <div class="image-details">
+                      <span>The lungs are clear bilaterally. Specifically, no evidence of focal consolidation, pneumothorax, or pleural effusion. Cardio mediastinal silhouette is unremarkable. Visualized osseous structures of the thorax are without acute abnormality.</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div style="text-align: center">
+            <div class="image-container">
+              <img src="./static\images\24.png" alt="sample image." class="censored">
+              <div class="overlay-text">Hover to Reveal Synthesized Image from Fine-Tunined Stable Diffusion with SeLORA on IU X-Ray Dataset</div>
+              <div class="image-description">
+                  <div class="image-details">
+                      <span>The cardiac silhouette, upper mediastinum and pulmonary vasculature are within normal limits. There is no acute air space infiltrate, pleural effusion or pneumothorax. No pulmonary nodules are identified.</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div style="text-align: center">
+            <div class="image-container">
+              <img src="./static\images\28.png" alt="sample image." class="censored">
+              <div class="overlay-text">Hover to Reveal Synthesized Image from Fine-Tunined Stable Diffusion with SeLORA on IU X-Ray Dataset</div>
+              <div class="image-description">
+                  <div class="image-details">
+                      <span>Negative for cardiac enlargement. Negative for vascular congestion. There are several small circular opacities in the right upper lung, some of which are centrally lucent. Negative for bony abnormality.</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="item">
+          <div style="text-align: center">
+            <div class="image-container">
+              <img src="./static\images\33.png" alt="sample image." class="censored">
+              <div class="overlay-text">Hover to Reveal Synthesized Image from Fine-Tunined Stable Diffusion with SeLORA on IU X-Ray Dataset</div>
+              <div class="image-description">
+                  <div class="image-details">
+                      <span>The lungs appear clear. The heart and pulmonary XXXX are normal. The pleural spaces are clear. Surgical clips and suture material are noted in the right hilar region suggesting prior lung surgery. The mediastinal contours are stable.</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">SeLoRA Training Procedure</h2>
+
+    <p>
+      The algorithm below describes the training procedure of SeLoRA. When training a model with SeLoRA, SeLoRA initilize itself with a rank of 1 and trains just like the vanilla LoRA under the hood. However, SeLoRA test the fisher information score (FI-Score) of the model at regular intervals and expands its rank if the FI score is not satisfactory. The rank expansion is done by adding a new rank to the weight matrices of the model. The rank expansion is done in a nice way that the new rank is added to the weight matrices that have the most impact on the model's performance.
+    </p>
+    <br>
+    <br>
+    <div style="text-align: center"> 
+      <img src="./static\images\preview.svg"
+                 alt="Interpolate start reference image." style="max-width: 100%; height: auto; width: 80%;"/>
+     </div>
+
+     
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <h2 class="title is-3">Learnt Rank Visulization</h2>
+    <p>
+      The image visualizes the final ranking of SeLoRA across the layers of a Stable Diffusion model after training on the IU-XRay dataset. Each cell represents a layer in the model, and the number within indicates the layer's rank. The layers are arranged from input to output, top to bottom and left to right.
+    </p>
+    <br>
+    <p>
+    In the text encoding part, "q", "k", and "v" represent the query, key, and value sections of the attention weights, respectively. "out", "fc1", and "fc2" denote the output, first fully connected layer, and second fully connected layer of the U-Net part.
+    </p>
+    <br>
+    <p>
+    Similarly, in the U-Net part, "q", "k", and "v" represent the query, key, and value sections of the attention weights. "attn1" and "attn2" refer to the first and second attention layers, where the first is self-attention and the second is cross-attention between text and image embeddings.
+    </p>
+
+    <br>
+    <br>
+
+    <div class="columns is-centered">
+
+    
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+
+          <h3 class="title is-4">Text Encoder</h3>
+          <p>
+            In the text encoder part, large ranks for SeLoRA lie at the q and k parts of the attention weights.
+          </p>
+
+          <img src="./static\images\text-encoder rank.png"
+                 alt="Interpolate start reference image."/>
+         
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+
+      <div class="column">
+        <div class="content">
+
+          <h3 class="title is-4">U-Net</h3>
+          <p>
+            For the U-Net part, large ranks are allocated to the q and k parts of the second attention
+            layer, which is the cross-attention layer.
+          </p>
+
+          <img src="./static\images\Unet-encoder rank.png"
+                 alt="Interpolate start reference image."/>
+         
+        </div>
+      </div>
+
+      
+      
+    </div>
+
+    <p>
+      Across different layers of the stable diffusion model, we observe that the rank allocation aligns with 
+      the intuition that weight updates would change most dramatically at locations where
+      the latent representations of text and image intersect (where conditioning is
+      more apparent).
+    </p>
+
+    <br>
+    <br>
+    <br>
+
+    <h2 class="title is-3">Qualitative Results</h2>
+
+    <p>
+      The image below compares the qualitative results of SeLoRA with vanilla LoRA and other LoRA variants. The first row displays synthesized images trained on the IU-XRay dataset, while the second row shows synthesized images trained on the Montgomery County CXR dataset, which is significantly smaller.
+    </p>
+    <br>
+    <p>
+      Due to SeLoRA's strategic nature, it was able to achieve similar image quality to other LoRA variants using only half the rank. Also notably, for the Montgomery County CXR dataset, which has a limited number of samples (a common constraint in medical imaging), SeLoRA outperforms vanilla LoRA and other LoRA variants in terms of image quality.
+    </p>
+
+    <br>
+    <br>
+    <div style="text-align: center">
+
+
+    <img src="./static\images\qualitative_result.png"
+                alt="Interpolate start reference image." style = 'width: 60%;'/>
+  </div>
+
+         
+
+    <br>
+    <br>
+    <br>
+
+    <!-- Concurrent Work. -->
+
+    
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Several excellent works have been introduced concurrently with ours, advancing the field of model adaptation.
+          </p>
+          <p>
+            All low-rank adaptation techniques stem from the original <a href="https://arxiv.org/abs/2106.09685">LoRA</a> paper, which pioneered the concept of adapting large language models using low-rank matrices.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2303.10512">AdaLoRA</a>, <a href="https://arxiv.org/abs/2210.07558">DyLoRA</a>, and <a href="https://arxiv.org/abs/2311.11696">SoRA</a> expand on the LoRA concept by implementing adaptive pruning, dynamically reducing the rank of matrices during training.
+          </p>
+          <p>
+            Other research, such as <a href="https://arxiv.org/abs/2305.14314">QLoRA</a>, focuses on quantizing LoRA to further reduce memory usage.
+          </p>
+          <p>
+            Given the rapid pace of research in this field, many more related works may have emerged since this writing. For a further overview, please refer to <a href="https://yuchen20.github.io/posts/low-rank-adaptation/">my summary of LoRA papers, which details their techniques and mathematical formulations</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <!-- <pre><code>@article{park2021nerfies,
+  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
+  title     = {Nerfies: Deformable Neural Radiance Fields},
+  journal   = {ICCV},
+  year      = {2021},
+}</code></pre> -->
+To be updated.
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <!-- <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a> -->
+      <a class="icon-link" href="https://github.com/Yuchen20" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="icon-link" href="https://www.linkedin.com/in/yuchen-mao" class="external-link" disabled>
+        <i class="fab fa-linkedin"></i>
+      </a>
+      <!-- <a class="icon-link" href="https://yuchenmao2024@163.com" class="external-link" disabled>
+        <i class="fab fa-envelope"></i>
+      </a> -->
+
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+
+
+<!-- 
+      code used to generate the algorithm in latex
+
+      http://www.tlhiv.org/ltxpreview/
+      % Define While structure if needed
+\newcommand{\algwhile}[1]{\textbf{while} #1 \textbf{do}}
+\newcommand{\algendwhile}{\textbf{end while}}
+
+
+\begin{algorithm}
+\caption{\emph{SeLoRA} Training Procedure}
+\begin{algorithmic}
+\State \textbf{Initialization:} Initialize $W = W_0 + AB$ for each linear layer with $A$, $B$ at rank $r=1$.\\
+\algwhile{$s < \text{Total Steps}$}
+    \State \qquad Forward pass $h = x(W_0 + AB) + b_0$.
+    \State \qquad Update $A$ and $B$ with gradients $\nabla_A \mathcal{L}$ and $\nabla_B \mathcal{L}$.
+\State \qquad \textbf{If} $s \mod t = 0$
+\State \qquad \qquad Compute original and expanded FI-Scores for $A$, $B$ and $A'$, $B'$.
+\State \qquad \qquad $A' = \begin{bmatrix} A & K \end{bmatrix}$, $B' = \begin{bmatrix} B^T & 0\end{bmatrix}^T$.
+\State \qquad \qquad FI-Ratio $= \frac{\text{FI-Score}_{\text{orig}}}{\text{FI-Score}_{\text{exp}}}$.
+\State \qquad\qquad \textbf{If} {FI-Ratio $\geq \lambda$} Update $A \leftarrow A'$, $B \leftarrow B'$.
+\State \qquad\qquad \textbf{EndIf}
+\State \qquad \textbf{EndFor}
+\State \textbf{EndIf}
+\State $s \leftarrow s + 1$.
+\\
+\algendwhile
+\end{algorithmic}
+\end{algorithm}
+
+ -->
